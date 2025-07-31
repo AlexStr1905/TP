@@ -1,0 +1,41 @@
+stages:
+  - install
+  - test
+
+variables:
+  PROJECT_DIR: "task-testing-python"
+
+InstallRequirements:
+  stage: install
+  tags:
+    - common  
+  image: python:3.11 
+  script:
+    - cd ${PROJECT_DIR}
+    - cat requirements.txt
+    - pip install --upgrade pip
+    - pip install -r requirements.txt
+
+TestCode:
+  stage: test
+  tags:
+    - common
+  image: python:3.11
+  script:
+    - cd ${PROJECT_DIR}
+    - pip install -r requirements.txt
+    - PYTHONPATH=src python -m pytest --cov=src --junitxml=test-report.xml tests/
+  artifacts:
+    reports:
+      junit: ${PROJECT_DIR}/test-report.xml
+
+LintCode:
+  stage: test
+  tags:
+    - common
+  image: python:3.11
+  script:
+    - cd ${PROJECT_DIR}
+    - pip install -r requirements.txt
+    - pip install flake8
+    - flake8 .
